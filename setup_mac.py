@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
-"""Setup script for packaging SafeEyes as a native macOS application bundle using py2app.
-
-Preserves the original setup.py intact for Linux packaging and builds.
-"""
-
 import os
 from setuptools import setup
+from setuptools.dist import Distribution
+
+# Prevent setuptools from pulling dependencies from pyproject.toml into install_requires,
+# which triggers py2app's "error: install_requires is no longer supported" check.
+_orig_init = Distribution.__init__
+
+
+def _clean_init(self, *args, **kwargs):
+    _orig_init(self, *args, **kwargs)
+    self.install_requires = []
+
+
+Distribution.__init__ = _clean_init
 
 APP = ["safeeyes/__main__.py"]
-
-DATA_FILES = []
 
 
 def collect_files(directory):
@@ -25,47 +31,34 @@ def collect_files(directory):
     return files_list
 
 
-# Collect all necessary assets (icons, glade files, config, audio/resources, plugins)
+DATA_FILES = []
 DATA_FILES.extend(collect_files("safeeyes/glade"))
 DATA_FILES.extend(collect_files("safeeyes/platform"))
 DATA_FILES.extend(collect_files("safeeyes/config"))
 DATA_FILES.extend(collect_files("safeeyes/resource"))
 DATA_FILES.extend(collect_files("safeeyes/plugins"))
 
-APP_NAME = "SafeEyes"
-VERSION = "3.5.1"
-
-PLIST = {
-    "CFBundleName": APP_NAME,
-    "CFBundleDisplayName": "Safe Eyes",
-    "CFBundleIdentifier": "io.github.slgobinath.SafeEyes",
-    "CFBundleVersion": VERSION,
-    "CFBundleShortVersionString": VERSION,
-    "NSHumanReadableCopyright": "Copyright © 2017-2026 Gobinath Loganathan & Mohamed Elgypaly",
-    "LSUIElement": True,  # Run purely as a top Menu Bar app (no Dock icon)
-    "NSHighResolutionCapable": True,
-}
-
 OPTIONS = {
     "argv_emulation": False,
-    "plist": PLIST,
+    "plist": {"LSUIElement": True},
     "packages": ["safeeyes"],
     "includes": [
         "gi",
-        "babel",
-        "packaging",
+        "cairo",
+        "pango",
+        "pangocairo",
+        "atk",
+        "gobject",
+        "gio",
+        "gtk",
         "pystray",
-        "PIL",
-    ],
-    "excludes": [
-        "tkinter",
-        "test",
-        "unittest",
     ],
 }
 
 setup(
+    name="SafeEyes",
     app=APP,
     data_files=DATA_FILES,
     options={"py2app": OPTIONS},
+    setup_requires=["py2app"],
 )
