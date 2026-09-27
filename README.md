@@ -52,6 +52,33 @@ Safe Eyes is available on the official repositories of many popular the distribu
 It is also available in Ubuntu PPA, Arch AUR and Python PyPI. You can choose any installation source and install on any Linux system with Python 3.
 
 
+### macOS Installation & Usage
+
+**No Docker Required**: SafeEyes runs completely natively on macOS as a lightweight Menu Bar application. Docker is neither required nor supported for the desktop UI.
+
+#### Prerequisites
+Ensure you have **Python 3** and [Homebrew](https://brew.sh) installed. Install the core UI libraries via Homebrew:
+```bash
+brew install gtk4 gobject-introspection
+```
+
+#### Installation Steps
+```bash
+git clone https://github.com/Mohamed-elgypaly/safeeyes.git
+cd safeeyes
+chmod +x build_mac.sh
+./build_mac.sh
+```
+
+#### Usage
+- **Autostart**: The build script automatically adds `dist/SafeEyes.app` to your macOS **Login Items** so SafeEyes starts automatically upon system boot.
+- **Immediate Launch**: To start SafeEyes right away, run:
+  ```bash
+  open dist/SafeEyes.app
+  ```
+- SafeEyes will appear directly in your top macOS Menu Bar (with no Dock icon), displaying countdown timers, providing break notifications, and offering full menu controls.
+
+
 ### Ubuntu, Linux Mint and other Ubuntu Derivatives
 
 The [Official PPA for Safe Eyes](https://launchpad.net/~safeeyes-team/+archive/ubuntu/safeeyes) hosts the latest (as much as allowed by dependencies) version of Safe Eyes **for Ubuntu 22.04 and above**. 
