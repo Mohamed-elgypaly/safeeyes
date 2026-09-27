@@ -72,6 +72,29 @@ fi
 
 APP_BUNDLE="$SCRIPT_DIR/dist/SafeEyes.app"
 
+# 5b. Bundle GTK4 / GI typelib files into the .app so PyGObject can find them
+echo "==> Bundling GObject-Introspection typelibs into SafeEyes.app..."
+GI_DEST="$APP_BUNDLE/Contents/Resources/girepository-1.0"
+mkdir -p "$GI_DEST"
+
+# Detect Homebrew prefix (Apple Silicon vs Intel)
+if [ -d "/opt/homebrew/lib/girepository-1.0" ]; then
+    GI_SRC="/opt/homebrew/lib/girepository-1.0"
+elif [ -d "/usr/local/lib/girepository-1.0" ]; then
+    GI_SRC="/usr/local/lib/girepository-1.0"
+else
+    echo "Warning: Could not find Homebrew girepository-1.0 directory."
+    echo "         GTK typelibs will NOT be bundled. The app may fail at launch."
+    GI_SRC=""
+fi
+
+if [ -n "$GI_SRC" ]; then
+    echo "    Copying typelibs from $GI_SRC ..."
+    cp -R "$GI_SRC/"*.typelib "$GI_DEST/" 2>/dev/null || true
+    TYPELIB_COUNT=$(ls -1 "$GI_DEST/"*.typelib 2>/dev/null | wc -l)
+    echo "    Bundled $TYPELIB_COUNT typelib(s) into $GI_DEST"
+fi
+
 if [ -d "$APP_BUNDLE" ]; then
     echo "=========================================================="
     echo " Build Successful: $APP_BUNDLE"
