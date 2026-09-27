@@ -53,6 +53,9 @@ OPTIONS = {
         "gtk",
         "pystray",
         "logging.handlers",
+        "babel",
+        "croniter",
+        "packaging",
     ],
 }
 
