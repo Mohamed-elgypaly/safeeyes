@@ -44,7 +44,31 @@ fi
 
 # 5. Build SafeEyes.app bundle using py2app
 echo "==> Bundling SafeEyes.app via setup_mac.py..."
-python3 setup_mac.py py2app
+
+# Helper to restore pyproject.toml on exit or interruption
+cleanup_pyproject() {
+    if [ -f "pyproject.toml.bak" ]; then
+        echo "==> Restoring pyproject.toml..."
+        mv pyproject.toml.bak pyproject.toml
+    fi
+}
+trap cleanup_pyproject EXIT INT TERM
+
+if [ -f "pyproject.toml" ]; then
+    echo "==> Temporarily hiding pyproject.toml to prevent dependency injection..."
+    mv pyproject.toml pyproject.toml.bak
+fi
+
+BUILD_EXIT_CODE=0
+python3 setup_mac.py py2app || BUILD_EXIT_CODE=$?
+
+cleanup_pyproject
+trap - EXIT INT TERM
+
+if [ "$BUILD_EXIT_CODE" -ne 0 ]; then
+    echo "Error: py2app build failed with exit code $BUILD_EXIT_CODE."
+    exit "$BUILD_EXIT_CODE"
+fi
 
 APP_BUNDLE="$SCRIPT_DIR/dist/SafeEyes.app"
 
