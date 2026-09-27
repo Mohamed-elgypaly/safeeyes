@@ -52,6 +52,7 @@ OPTIONS = {
         "gio",
         "gtk",
         "pystray",
+        "logging.handlers",
     ],
 }
 
