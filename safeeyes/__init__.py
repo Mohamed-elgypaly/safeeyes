@@ -10,3 +10,5 @@ if sys.platform == 'darwin' and (getattr(sys, 'frozen', False) or 'SafeEyes.app'
     ))
     if os.path.exists(_res_dir):
         os.environ['GI_TYPELIB_PATH'] = _res_dir
+    # Ensure bundled Homebrew dylibs are searchable when app launched from Finder
+    os.environ['DYLD_FALLBACK_LIBRARY_PATH'] = '/opt/homebrew/lib:/usr/local/lib'

@@ -40,27 +40,16 @@ DATA_FILES.extend(collect_files("safeeyes/plugins"))
 
 OPTIONS = {
     "argv_emulation": False,
-    "plist": {
-            "LSUIElement": True,
-            "LSEnvironment": {
-                "GI_TYPELIB_PATH": "@executable_path/../Resources/girepository-1.0",
-            },
-        },
+    "plist": {"LSUIElement": True},
     "packages": ["safeeyes"],
     "includes": [
         "gi",
         "cairo",
-        "pango",
-        "pangocairo",
-        "atk",
-        "gobject",
-        "gio",
-        "gtk",
-        "pystray",
-        "logging.handlers",
         "babel",
         "croniter",
         "packaging",
+        "pystray",
+        "logging.handlers",
     ],
 }
 

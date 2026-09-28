@@ -25,14 +25,7 @@ import signal
 import sys
 import typing
 
-# macOS py2app bundle: Dynamically resolve the bundled girepository-1.0 path
-# so PyGObject can find GTK4 typelibs before gi is imported.
-if sys.platform == 'darwin' and (getattr(sys, 'frozen', False) or 'SafeEyes.app' in (sys.executable or '')):
-    _res_dir = os.path.abspath(os.path.join(
-        os.path.dirname(sys.executable), '..', 'Resources', 'girepository-1.0'
-    ))
-    if os.path.isdir(_res_dir):
-        os.environ['GI_TYPELIB_PATH'] = _res_dir
+
 
 from safeeyes import translations
 from safeeyes.safeeyes import SafeEyes
