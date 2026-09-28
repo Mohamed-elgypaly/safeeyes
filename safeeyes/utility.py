@@ -74,6 +74,7 @@ SYSTEM_DESKTOP_FILE = os.path.join(
 SYSTEM_ICONS = os.path.join(BIN_DIRECTORY, "platform/icons")
 DESKTOP_ENVIRONMENT = None
 IS_WAYLAND = False
+IS_MACOS = sys.platform == "darwin"
 
 
 def get_resource_path(resource_name):
@@ -274,6 +275,20 @@ def load_plugins_config(safeeyes_config):
 
         configs.append(config)
     return configs
+
+
+def is_macos() -> bool:
+    """Return True if the current platform is macOS."""
+    return sys.platform == "darwin"
+
+
+def is_x11() -> bool:
+    """Return True only when running under a real X11/Xorg session.
+
+    Returns False on Wayland and macOS so that Xlib calls are never
+    attempted outside an X11 session.
+    """
+    return not IS_MACOS and not IS_WAYLAND
 
 
 def desktop_environment():
