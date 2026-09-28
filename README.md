@@ -54,29 +54,116 @@ It is also available in Ubuntu PPA, Arch AUR and Python PyPI. You can choose any
 
 ### macOS Installation & Usage
 
-**No Docker Required**: SafeEyes runs completely natively on macOS as a lightweight Menu Bar application. Docker is neither required nor supported for the desktop UI.
+> **No Docker Required** — SafeEyes runs natively on macOS as a menu-bar app.
+> Docker is neither required nor supported for the desktop UI.
 
 #### Prerequisites
-Ensure you have **Python 3** and [Homebrew](https://brew.sh) installed. Install the core UI libraries via Homebrew:
+
+- **Python 3.10+** — check with `python3 --version`
+- **Homebrew** — https://brew.sh
+- **GTK 4 libraries** (install once):
+
 ```bash
-brew install gtk4 gobject-introspection
+brew install gtk4 gobject-introspection glib libffi gettext
 ```
 
-#### Installation Steps
+For the best experience also install `dylibbundler` so the app bundle works
+on Macs without Homebrew:
+
+```bash
+brew install dylibbundler
+```
+
+#### Building the .app bundle
+
 ```bash
 git clone https://github.com/Mohamed-elgypaly/safeeyes.git
 cd safeeyes
 chmod +x build_mac.sh
-./build_mac.sh
+./build_mac.sh                   # basic build + Login Items registration
+./build_mac.sh --no-autostart    # skip Login Items
+./build_mac.sh --sign            # ad-hoc codesign (recommended)
+./build_mac.sh --dmg             # also produce a distributable DMG
+./build_mac.sh --clean --sign --dmg  # full clean rebuild
 ```
 
+The script will:
+1. Create a Python virtual environment (`.venv_mac`).
+2. Install all macOS dependencies automatically.
+3. Build `dist/SafeEyes.app` via py2app.
+4. Bundle GTK 4 typelibs and shared libraries into the app.
+5. Run a self-test to verify the bundle loads correctly.
+6. Optionally register the app in macOS Login Items for autostart.
+
+#### First launch — Gatekeeper
+
+Because the app is not notarised by Apple, macOS Gatekeeper will block it on
+first run.  Bypass it once with:
+
+```bash
+open dist/SafeEyes.app
+# — or —
+xattr -d com.apple.quarantine dist/SafeEyes.app
+```
+
+Or: **right-click → Open** in Finder, then click "Open" in the dialog.
+
+You only need to do this once.
+
+#### Permissions (first run)
+
+macOS will ask for two permissions the first time SafeEyes runs:
+
+| Permission | Why it's needed |
+|---|---|
+| **Notifications** | To show pre-break reminders. Grant in *System Settings → Notifications → SafeEyes*. |
+| **Accessibility** | Only needed on some desktop configurations. Grant in *System Settings → Privacy & Security → Accessibility*. |
+
 #### Usage
-- **Autostart**: The build script automatically adds `dist/SafeEyes.app` to your macOS **Login Items** so SafeEyes starts automatically upon system boot.
-- **Immediate Launch**: To start SafeEyes right away, run:
-  ```bash
-  open dist/SafeEyes.app
-  ```
-- SafeEyes will appear directly in your top macOS Menu Bar (with no Dock icon), displaying countdown timers, providing break notifications, and offering full menu controls.
+
+SafeEyes appears in the **menu bar** (top-right of the screen) with no Dock
+icon.  Click the icon to access the menu: Settings, About, Take Break, Disable
+/ Enable, and Quit.
+
+To launch immediately after building:
+
+```bash
+open dist/SafeEyes.app
+```
+
+Login Items autostart is registered by the build script by default.  Manage it
+in *System Settings → General → Login Items*.
+
+#### Troubleshooting
+
+If the app does not start, check the log file:
+
+```
+~/Library/Logs/SafeEyes/safeeyes.log
+```
+
+Also viewable in **Console.app** (search "SafeEyes").
+
+Common issues:
+
+| Symptom | Fix |
+|---|---|
+| `Namespace Gtk not available` | GTK4 typelibs not bundled. Rebuild: `./build_mac.sh --clean`. |
+| App bounces in Dock and quits | Check the log for `ImportError`. Run `./build_mac.sh --clean --sign`. |
+| No menu-bar icon | pystray or PyObjC not installed in the venv. Run `./build_mac.sh --clean`. |
+| Notifications not appearing | Grant permission in *System Settings → Notifications → SafeEyes*. |
+
+#### Uninstall
+
+```bash
+# 1. Quit the app (menu bar → Quit)
+# 2. Remove the bundle
+rm -rf /path/to/dist/SafeEyes.app
+# 3. Remove Login Item: System Settings → General → Login Items → remove SafeEyes
+# 4. Remove config and logs
+rm -rf ~/Library/Application\ Support/safeeyes
+rm -rf ~/Library/Logs/SafeEyes
+```
 
 
 ### Ubuntu, Linux Mint and other Ubuntu Derivatives
