@@ -57,7 +57,7 @@ class IdleMonitorMacOS(IdleMonitorInterface):
         """
         # 1. Attempt to use PyObjC Quartz
         try:
-            from Quartz import (  # type: ignore[import-not-found]
+            from Quartz import (  # type: ignore
                 CGEventSourceSecondsSinceLastEventType,
                 kCGAnyInputEventType,
                 kCGEventSourceStateCombinedSessionState,
@@ -83,9 +83,12 @@ class IdleMonitorMacOS(IdleMonitorInterface):
             )
             core_graphics = ctypes.cdll.LoadLibrary(cg_path)
 
-            # CFTimeInterval CGEventSourceSecondsSinceLastEventType(CGEventSourceStateID stateID, CGEventType eventType);
-            core_graphics.CGEventSourceSecondsSinceLastEventType.restype = ctypes.c_double
-            core_graphics.CGEventSourceSecondsSinceLastEventType.argtypes = [
+            # CGEventSourceSecondsSinceLastEventType(
+            #     CGEventSourceStateID stateID, CGEventType eventType
+            # )
+            func = core_graphics.CGEventSourceSecondsSinceLastEventType
+            func.restype = ctypes.c_double
+            func.argtypes = [
                 ctypes.c_uint32,
                 ctypes.c_uint32,
             ]
@@ -96,16 +99,15 @@ class IdleMonitorMacOS(IdleMonitorInterface):
             kCGAnyInputEventType = 0xFFFFFFFF
 
             self._get_idle_seconds = lambda: float(
-                core_graphics.CGEventSourceSecondsSinceLastEventType(
+                func(
                     kCGEventSourceStateCombinedSessionState, kCGAnyInputEventType
                 )
             )
             logging.debug("Initialized macOS idle monitor using ctypes CoreGraphics")
             return
         except Exception as e:
-            raise RuntimeError(
-                f"Failed to load macOS CoreGraphics / Quartz library for idle tracking: {e}"
-            ) from e
+            msg = f"Failed to load macOS CoreGraphics / Quartz library: {e}"
+            raise RuntimeError(msg) from e
 
     def _get_idle_time(self) -> float:
         """Retrieve current system idle time in seconds."""

@@ -24,11 +24,14 @@ import typing
 
 from safeeyes import utility
 
+HAS_APPKIT: bool = False
+HAS_PYSTRAY: bool = False
+
 # Try importing AppKit / Cocoa via PyObjC
 try:
-    import objc
-    from Foundation import NSObject
-    from AppKit import (
+    import objc  # type: ignore
+    from Foundation import NSObject  # type: ignore
+    from AppKit import (  # type: ignore
         NSStatusBar,
         NSVariableStatusItemLength,
         NSMenu,
@@ -41,7 +44,7 @@ except (ImportError, Exception):
 
 # Try importing pystray as an alternative backend
 try:
-    import pystray
+    import pystray  # type: ignore # noqa: F401
     from PIL import Image
     HAS_PYSTRAY = True
 except (ImportError, Exception):
@@ -87,7 +90,9 @@ if HAS_APPKIT:
             self._callbacks = {}
             return self
 
-        def registerCallback_forTag_(self, callback: typing.Callable[[], None], tag: int):
+        def registerCallback_forTag_(
+            self, callback: typing.Callable[[], None], tag: int
+        ):
             self._callbacks[tag] = callback
 
         def clearCallbacks(self):
@@ -98,7 +103,7 @@ if HAS_APPKIT:
             tag = sender.tag()
             cb = self._callbacks.get(tag)
             if cb:
-                # Dispatch back into GLib main loop to avoid blocking Cocoa menu tracking
+                # Dispatch back into GLib main loop to avoid blocking Cocoa menu
                 utility.execute_main_thread(cb)
 
 

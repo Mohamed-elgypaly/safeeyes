@@ -62,7 +62,7 @@ class MacOSNotification:
 
     def _show_user_notifications(self) -> bool:
         try:
-            from UserNotifications import (  # type: ignore[import-not-found]
+            from UserNotifications import (  # type: ignore
                 UNMutableNotificationContent,
                 UNNotificationRequest,
                 UNNotificationSound,
@@ -88,7 +88,7 @@ class MacOSNotification:
 
     def _show_ns_user_notifications(self) -> bool:
         try:
-            from Foundation import (  # type: ignore[import-not-found]
+            from Foundation import (  # type: ignore
                 NSUserNotification,
                 NSUserNotificationCenter,
             )
@@ -112,7 +112,8 @@ class MacOSNotification:
     def _show_osascript(self) -> bool:
         script = (
             "on run argv\n"
-            "    display notification (item 1 of argv) with title (item 2 of argv) sound name \"default\"\n"
+            '    display notification (item 1 of argv) with title '
+            '(item 2 of argv) sound name "default"\n'
             "end run"
         )
         try:
@@ -133,7 +134,7 @@ class MacOSNotification:
         if self._delivered_via_objc:
             try:
                 if self._ns_notification is not None:
-                    from Foundation import NSUserNotificationCenter  # type: ignore[import-not-found]
+                    from Foundation import NSUserNotificationCenter  # type: ignore
 
                     center = NSUserNotificationCenter.defaultUserNotificationCenter()
                     if center is not None:
@@ -143,7 +144,7 @@ class MacOSNotification:
                 pass
 
             try:
-                from UserNotifications import UNUserNotificationCenter  # type: ignore[import-not-found]
+                from UserNotifications import UNUserNotificationCenter  # type: ignore
 
                 center = UNUserNotificationCenter.currentNotificationCenter()
                 if center is not None:

@@ -515,11 +515,12 @@ class TrayIcon:
             )
             self.sni_service.register()
         else:
-            # This is using a separate dbus connection on purpose
-            # StatusNotifierWatcher does not have an unregister method - the spec instead
-            # says that the watcher should detect the item "going away from the bus"
-            # in practice, this means that the connection closing is detected by the watcher
-            # which can only happen if we use our own connection, and close it manually
+            # This is using a separate dbus connection on purpose.
+            # StatusNotifierWatcher does not have an unregister method - the
+            # spec instead says that the watcher should detect the item
+            # "going away from the bus". In practice, this means that the
+            # connection closing is detected by the watcher, which can only
+            # happen if we use our own connection, and close it manually.
             self._session_bus = Gio.DBusConnection.new_for_address_sync(
                 Gio.dbus_address_get_for_bus_sync(Gio.BusType.SESSION),
                 Gio.DBusConnectionFlags.AUTHENTICATION_CLIENT

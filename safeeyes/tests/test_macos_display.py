@@ -1,10 +1,7 @@
 """Tests for display-server detection helpers in utility.py."""
 import importlib
 import sys
-import types
 from unittest.mock import patch
-
-import pytest
 
 
 # ---------------------------------------------------------------------------
@@ -64,7 +61,7 @@ class TestIsX11:
         assert u.is_x11() is False
 
     def test_not_x11_on_macos_even_if_wayland_false(self, monkeypatch):
-        """macOS always returns False from is_x11()."""
+        """MacOS always returns False from is_x11()."""
         import safeeyes.utility as u
         monkeypatch.setattr(u, "IS_MACOS", True)
         monkeypatch.setattr(u, "IS_WAYLAND", False)
@@ -84,7 +81,6 @@ class TestIsWayland:
             assert result is False
 
     def test_detects_wayland_display_env(self, monkeypatch):
-        import os
         import safeeyes.utility as u
         monkeypatch.setattr(sys, "platform", "linux")
         monkeypatch.setattr(u, "IS_MACOS", False)
@@ -98,7 +94,9 @@ class TestIsWayland:
 # ---------------------------------------------------------------------------
 
 class TestInitBootstrap:
-    def test_sets_gi_typelib_path_when_frozen_and_dir_exists(self, tmp_path, monkeypatch):
+    def test_sets_gi_typelib_path_when_frozen_and_dir_exists(
+        self, tmp_path, monkeypatch
+    ):
         """__init__.py should set GI_TYPELIB_PATH when frozen and dir exists."""
         import os
         # Create fake typelib dir

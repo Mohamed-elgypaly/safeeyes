@@ -10,7 +10,11 @@ from safeeyes.plugins.notification import plugin as notification_plugin
 class TestMacOSNotification(unittest.TestCase):
     def test_osascript_notification(self):
         notif = MacOSNotification("Safe Eyes", "Time for a break")
-        with patch("subprocess.run") as mock_run:
+        with (
+            patch.object(notif, "_show_user_notifications", return_value=False),
+            patch.object(notif, "_show_ns_user_notifications", return_value=False),
+            patch("subprocess.run") as mock_run,
+        ):
             mock_run.return_value = MagicMock(returncode=0)
             result = notif.show()
             self.assertTrue(result)
@@ -35,7 +39,9 @@ class TestMacOSNotification(unittest.TestCase):
             {
                 "Foundation": MagicMock(
                     NSUserNotificationCenter=MagicMock(
-                        defaultUserNotificationCenter=MagicMock(return_value=mock_center)
+                        defaultUserNotificationCenter=MagicMock(
+                            return_value=mock_center
+                        )
                     ),
                     NSUserNotification=mock_notif_class,
                 )
@@ -44,12 +50,16 @@ class TestMacOSNotification(unittest.TestCase):
             notif = MacOSNotification("Safe Eyes", "Pre-break alert")
             result = notif._show_ns_user_notifications()
             self.assertTrue(result)
-            mock_center.deliverNotification_.assert_called_once_with(mock_instance)
+            mock_center.deliverNotification_.assert_called_once_with(
+                mock_instance
+            )
 
             # Test close
             notif._delivered_via_objc = True
             notif.close()
-            mock_center.removeDeliveredNotification_.assert_called_once_with(mock_instance)
+            mock_center.removeDeliveredNotification_.assert_called_once_with(
+                mock_instance
+            )
 
     def test_plugin_on_pre_break_and_on_start_break_macos(self):
         break_obj = Break(
@@ -62,9 +72,15 @@ class TestMacOSNotification(unittest.TestCase):
         )
 
         with patch("sys.platform", "darwin"):
-            with patch("safeeyes.plugins.notification.macos.MacOSNotification.show") as mock_show:
-                with patch("safeeyes.plugins.notification.macos.MacOSNotification.close") as mock_close:
-                    notification_plugin.init({}, {"pre_break_warning_time": 10}, {})
+            with patch(
+                "safeeyes.plugins.notification.macos.MacOSNotification.show"
+            ) as mock_show:
+                with patch(
+                    "safeeyes.plugins.notification.macos.MacOSNotification.close"
+                ) as mock_close:
+                    notification_plugin.init(
+                        {}, {"pre_break_warning_time": 10}, {}
+                    )
                     notification_plugin.on_pre_break(break_obj)
 
                     self.assertIsNotNone(notification_plugin.notification)

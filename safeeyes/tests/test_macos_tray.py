@@ -70,7 +70,8 @@ class TestMacOSTray(unittest.TestCase):
                 pystray_menu = service._build_pystray_menu(items)
                 self.assertEqual(len(pystray_menu), 3)
 
-                # Check that clicking item with callback dispatches to execute_main_thread
+                # Check that clicking item with callback dispatches to
+                # execute_main_thread
                 take_break_item = pystray_menu[2]
                 submenu = take_break_item.action
                 any_break_item = submenu[0]
